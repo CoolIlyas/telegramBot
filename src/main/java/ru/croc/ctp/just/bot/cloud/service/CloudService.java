@@ -1,4 +1,4 @@
-package ru.croc.ctp.just.bot.cloud.internal.service;
+package ru.croc.ctp.just.bot.cloud.service;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.DefaultRequest;
@@ -29,7 +29,7 @@ public class CloudService {
     @Value("${cloud.accessKey}")
     private String accessKey;
 
-    @Value("${cloud.secretKey")
+    @Value("${cloud.secretKey}")
     private String secretKey;
 
     /**

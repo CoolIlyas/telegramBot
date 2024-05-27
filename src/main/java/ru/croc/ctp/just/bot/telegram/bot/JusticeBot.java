@@ -1,4 +1,4 @@
-package ru.croc.ctp.just.bot.telegram.internal;
+package ru.croc.ctp.just.bot.telegram.bot;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

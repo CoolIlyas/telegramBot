@@ -1,4 +1,4 @@
-package ru.croc.ctp.just.bot.telegram.internal;
+package ru.croc.ctp.just.bot.telegram.bot;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,8 +8,8 @@ import ru.croc.ctp.just.bot.telegram.Command;
 import ru.croc.ctp.just.bot.telegram.ChatEntity;
 import ru.croc.ctp.just.bot.telegram.CommandInProgress;
 import ru.croc.ctp.just.bot.telegram.CommandWithStatus;
-import ru.croc.ctp.just.bot.telegram.internal.repo.ChatRepository;
-import ru.croc.ctp.just.bot.telegram.internal.repo.CommandInProgressRepository;
+import ru.croc.ctp.just.bot.telegram.repo.ChatRepository;
+import ru.croc.ctp.just.bot.telegram.repo.CommandInProgressRepository;
 
 import jakarta.annotation.PostConstruct;
 import java.util.List;

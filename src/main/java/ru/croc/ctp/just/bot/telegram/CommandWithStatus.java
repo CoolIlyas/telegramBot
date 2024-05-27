@@ -1,7 +1,7 @@
 package ru.croc.ctp.just.bot.telegram;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.croc.ctp.just.bot.telegram.internal.repo.CommandInProgressRepository;
+import ru.croc.ctp.just.bot.telegram.repo.CommandInProgressRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +21,7 @@ public interface CommandWithStatus  extends Command {
     /**
      * Создать и сохранить команду.
      * @param chat чат
-     * @param commandInProgressRepository
+     * @param commandInProgressRepository репозиторий сущности CommandInProgress
      */
     default void createAndSaveCommandInProgress(ChatEntity chat,
                                                 String status,
