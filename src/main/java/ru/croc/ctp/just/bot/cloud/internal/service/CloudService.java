@@ -1,0 +1,70 @@
+package ru.croc.ctp.just.bot.cloud.internal.service;
+
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.DefaultRequest;
+import com.amazonaws.Request;
+import com.amazonaws.auth.AWS4Signer;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.http.AmazonHttpClient;
+import com.amazonaws.http.ExecutionContext;
+import com.amazonaws.http.HttpMethodName;
+import com.amazonaws.http.HttpResponseHandler;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.net.URI;
+import java.util.Map;
+
+@Service
+public class CloudService {
+
+    @Value("${cloud.endpoint}")
+    private String cloudEndpoint;
+
+    @Value("${cloud.region}")
+    private String region;
+
+    @Value("${cloud.accessKey}")
+    private String accessKey;
+
+    @Value("${cloud.secretKey")
+    private String secretKey;
+
+    /**
+     * Метод для отправки сообщения в облако.
+     * @param action Название операции
+     * @param httpMethod Http метод запроса
+     * @param parameters параметры запроса
+     * @param handler хендлер для обработки ответа с облака. Если обрабатывать ответ не нужно, то может быть null
+     * @return возвращает дженерик хендлера, если хендлер = null, то вернется null
+     * @param <T> дженерик хендлера, может быть чем угодно
+     */
+    public <T> T sendRequest(@NotBlank String action,
+                            @NotNull HttpMethodName httpMethod,
+                            Map<String, String> parameters,
+                            HttpResponseHandler<T> handler) {
+        //Instantiate the request
+        Request<Void> request = new DefaultRequest<>(""); //Request to ElasticSearch
+        request.setHttpMethod(httpMethod);
+        request.setEndpoint(URI.create(cloudEndpoint));
+        request.addParameter("Action", action);
+        parameters.forEach(request::addParameter);
+
+        //Sign it...
+        AWS4Signer signer = new AWS4Signer();
+        signer.setRegionName(region);
+        signer.setServiceName(request.getServiceName());
+        signer.sign(request, new BasicAWSCredentials(accessKey, secretKey));
+
+        //Execute it and get the response...
+        return new AmazonHttpClient(new ClientConfiguration())
+                .requestExecutionBuilder()
+                .executionContext(new ExecutionContext(true))
+                .request(request)
+                .execute(handler)
+                .getAwsResponse();
+    }
+
+}
