@@ -50,7 +50,10 @@ public class CloudService {
         request.setHttpMethod(httpMethod);
         request.setEndpoint(URI.create(cloudEndpoint));
         request.addParameter("Action", action);
-        parameters.forEach(request::addParameter);
+
+        if (parameters != null) {
+            parameters.forEach(request::addParameter);
+        }
 
         //Sign it...
         AWS4Signer signer = new AWS4Signer();
