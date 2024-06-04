@@ -14,21 +14,41 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для хранения мапы id-ip экземпляров.
+ */
 @Service
 @RequiredArgsConstructor
 public class InstanceIpToIdService {
+    /**
+     * Мара id-ip.
+     */
     private Map<String, String> ipIdMap;
+    /**
+     * Сервис для отправки запросов в облако.
+     */
     private final CloudService cloudService;
 
+    /**
+     * Инициализация мапы при запуске приложения.
+     */
     @PostConstruct
     private void init() {
         refreshMap();
     }
 
+    /**
+     * Возвращает id экземпляра.
+     * @param ip ip экземпляра
+     * @return id экземпляра
+     */
     public String getId(String ip) {
         return ipIdMap.get(ip);
     }
 
+    /**
+     * Метод для обновления мапы.
+     */
     public void refreshMap() {
         DescribeInstancesResult result =  cloudService.sendRequest("DescribeInstances",
                 HttpMethodName.GET, null,

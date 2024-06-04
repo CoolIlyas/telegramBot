@@ -17,18 +17,32 @@ import org.springframework.stereotype.Service;
 import java.net.URI;
 import java.util.Map;
 
+/**
+ * Сервис для отправки запросов в облако.
+ */
 @Service
 public class CloudService {
-
+    /**
+     * Адрес облака.
+     */
     @Value("${cloud.endpoint}")
     private String cloudEndpoint;
 
+    /**
+     * Регион.
+     */
     @Value("${cloud.region}")
     private String region;
 
+    /**
+     * AccessKey пользователя.
+     */
     @Value("${cloud.accessKey}")
     private String accessKey;
 
+    /**
+     * SecretKey пользователя.
+     */
     @Value("${cloud.secretKey}")
     private String secretKey;
 
