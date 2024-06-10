@@ -6,15 +6,18 @@ import com.amazonaws.Request;
 import com.amazonaws.auth.AWS4Signer;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.http.AmazonHttpClient;
+import com.amazonaws.http.DefaultErrorResponseHandler;
 import com.amazonaws.http.ExecutionContext;
 import com.amazonaws.http.HttpMethodName;
 import com.amazonaws.http.HttpResponseHandler;
+import com.amazonaws.transform.LegacyErrorUnmarshaller;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -80,6 +83,7 @@ public class CloudService {
                 .requestExecutionBuilder()
                 .executionContext(new ExecutionContext(true))
                 .request(request)
+                .errorResponseHandler(new DefaultErrorResponseHandler(List.of(new LegacyErrorUnmarshaller())))
                 .execute(handler)
                 .getAwsResponse();
     }
