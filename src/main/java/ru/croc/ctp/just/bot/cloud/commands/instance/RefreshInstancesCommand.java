@@ -1,4 +1,4 @@
-package ru.croc.ctp.just.bot.cloud.commands;
+package ru.croc.ctp.just.bot.cloud.commands.instance;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
