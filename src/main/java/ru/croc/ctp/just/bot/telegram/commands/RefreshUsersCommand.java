@@ -10,6 +10,7 @@ import ru.croc.ctp.just.bot.telegram.Command;
 import java.util.List;
 
 import static ru.croc.ctp.just.bot.telegram.BotUtil.sendMessage;
+import static ru.croc.ctp.just.bot.telegram.BotUtil.updateTextEquals;
 
 /**
  * Команда обновляет список допустимых пользователей из файла.
@@ -24,7 +25,7 @@ public class RefreshUsersCommand implements Command {
 
     @Override
     public boolean isCalled(Update update) {
-        return update.getMessage().hasText() && update.getMessage().getText().equals("/refreshUsers");
+        return updateTextEquals(update, "/refreshUsers");
     }
 
     @Override

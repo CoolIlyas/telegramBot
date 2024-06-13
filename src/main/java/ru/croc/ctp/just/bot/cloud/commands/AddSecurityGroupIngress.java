@@ -21,7 +21,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static ru.croc.ctp.just.bot.cloud.service.CloudService.AUTHORIZE_SECURITY_GROUP_INGRESS;
+import static ru.croc.ctp.just.bot.cloud.service.CloudService.DESCRIBE_SECURITY_GROUP;
+import static ru.croc.ctp.just.bot.cloud.service.CloudService.REVOKE_SECURITY_GROUP_INGRESS;
 import static ru.croc.ctp.just.bot.telegram.BotUtil.sendMessage;
+import static ru.croc.ctp.just.bot.telegram.BotUtil.updateTextStartsWith;
 
 /**
  * Команда на добавление ip в белый лист SecurityGroup.
@@ -42,16 +46,16 @@ public class AddSecurityGroupIngress implements Command {
     /**
      * Постфикс для ip.
      */
-    private final String IP_MASK_POSTFIX = "/32";
+    private static final String IP_MASK_POSTFIX = "/32";
 
     /**
      * Префикс для описания правила.
      */
-    private final String USERNAME_PREFIX = "t_";
+    private static final String USERNAME_PREFIX = "t_";
 
     @Override
     public boolean isCalled(Update update) {
-        return update.getMessage().hasText() && update.getMessage().getText().startsWith("/addIp");
+        return updateTextStartsWith(update, "/addIp");
     }
 
     @Override
@@ -66,7 +70,7 @@ public class AddSecurityGroupIngress implements Command {
         //Получаем все правила
         DescribeSecurityGroupsResult result;
         try {
-            result= cloudService.sendRequest("DescribeSecurityGroups",
+            result = cloudService.sendRequest(DESCRIBE_SECURITY_GROUP,
                     HttpMethodName.GET, Map.of("GroupId.1", securityGroupId),
                     new StaxResponseHandler<>(new DescribeSecurityGroupsResultStaxUnmarshaller())).getResult();
         } catch (Exception e) {
@@ -87,7 +91,7 @@ public class AddSecurityGroupIngress implements Command {
         if (oldIpPermission.isPresent()) {
             try {
                 String oldId = oldIpPermission.get().getIpv4Ranges().get(0).getCidrIp();
-                cloudService.sendRequest("RevokeSecurityGroupIngress", HttpMethodName.GET,
+                cloudService.sendRequest(REVOKE_SECURITY_GROUP_INGRESS, HttpMethodName.GET,
                         Map.of(
                                 "GroupId", securityGroupId,
                                 "IpPermissions.0.IpProtocol", "-1",
@@ -103,7 +107,7 @@ public class AddSecurityGroupIngress implements Command {
 
         //Добавляем новое правило
         try {
-            cloudService.sendRequest("AuthorizeSecurityGroupIngress", HttpMethodName.GET,
+            cloudService.sendRequest(AUTHORIZE_SECURITY_GROUP_INGRESS, HttpMethodName.GET,
                     Map.of(
                             "GroupId", securityGroupId,
                             "IpPermissions.0.IpProtocol", "-1",
@@ -120,8 +124,7 @@ public class AddSecurityGroupIngress implements Command {
                 default -> "Произошла ошибка при добавлении нового правила";
             };
             return sendMessage(responseText, chat);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return sendMessage("Произошла ошибка при добавлении правила", chat);
         }
         return sendMessage("Готово!", chat);

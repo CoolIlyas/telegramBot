@@ -50,6 +50,41 @@ public class CloudService {
     private String secretKey;
 
     /**
+     * Название команды на старт экземпляра.
+     */
+    public static final String START_INSTANCES = "StartInstances";
+
+    /**
+     * Название команды на остановку экземпляра.
+     */
+    public static final String STOP_INSTANCES = "StopInstances";
+
+    /**
+     * Название команды на получение информации об экземплярах.
+     */
+    public static final String DESCRIBE_INSTANCES = "DescribeInstances";
+
+    /**
+     * Параметр id экземпляра для запроса.
+     */
+    public static final String INSTANCE_ID = "InstanceId.";
+
+    /**
+     * Название команды на получение информации об групппе безопасности.
+     */
+    public static final String DESCRIBE_SECURITY_GROUP = "DescribeSecurityGroups";
+
+    /**
+     * Запрос на удаления правила для группы безопасности.
+     */
+    public static final String REVOKE_SECURITY_GROUP_INGRESS = "RevokeSecurityGroupIngress";
+
+    /**
+     * Запрос на добавления правила для группы безопасности.
+     */
+    public static final String AUTHORIZE_SECURITY_GROUP_INGRESS = "AuthorizeSecurityGroupIngress";
+
+    /**
      * Метод для отправки сообщения в облако.
      * @param action Название операции
      * @param httpMethod Http метод запроса

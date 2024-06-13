@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static ru.croc.ctp.just.bot.cloud.service.CloudService.DESCRIBE_INSTANCES;
+
 /**
  * Сервис для хранения мапы id-ip экземпляров.
  */
@@ -50,9 +52,12 @@ public class InstanceIpToIdService {
      * Метод для обновления мапы.
      */
     public void refreshMap() {
-        DescribeInstancesResult result =  cloudService.sendRequest("DescribeInstances",
-                HttpMethodName.GET, null,
-                new StaxResponseHandler<>(new DescribeInstancesResultStaxUnmarshaller())).getResult();
+        DescribeInstancesResult result =  cloudService.sendRequest(
+                DESCRIBE_INSTANCES,
+                HttpMethodName.GET,
+                null,
+                new StaxResponseHandler<>(new DescribeInstancesResultStaxUnmarshaller()))
+                .getResult();
         ipIdMap = result.getReservations().stream()
                 .map(Reservation::getInstances)
                 .flatMap(Collection::stream)

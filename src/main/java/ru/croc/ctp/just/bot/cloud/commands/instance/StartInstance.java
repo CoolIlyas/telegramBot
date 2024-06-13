@@ -10,7 +10,10 @@ import ru.croc.ctp.just.bot.telegram.ChatEntity;
 import java.util.List;
 import java.util.Map;
 
+import static ru.croc.ctp.just.bot.cloud.service.CloudService.INSTANCE_ID;
+import static ru.croc.ctp.just.bot.cloud.service.CloudService.START_INSTANCES;
 import static ru.croc.ctp.just.bot.telegram.BotUtil.sendMessage;
+import static ru.croc.ctp.just.bot.telegram.BotUtil.updateTextStartsWith;
 
 /**
  * Команда для запуска экземпляра.
@@ -29,12 +32,12 @@ public class StartInstance extends BaseInstanceCommand {
 
     @Override
     public boolean isCalled(Update update) {
-        return update.getMessage().hasText() && update.getMessage().getText().startsWith("/startInstance");
+        return updateTextStartsWith(update, "/startInstance");
     }
 
     @Override
     protected List<Object> makeRequest(String id, ChatEntity chat) {
-        cloudService.sendRequest("StartInstances", HttpMethodName.GET, Map.of("InstanceId.1", id), null);
+        cloudService.sendRequest(START_INSTANCES, HttpMethodName.GET, Map.of(INSTANCE_ID + "1", id), null);
         return sendMessage("Готово", chat);
     }
 
