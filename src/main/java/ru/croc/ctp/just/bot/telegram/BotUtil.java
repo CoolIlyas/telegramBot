@@ -1,5 +1,6 @@
 package ru.croc.ctp.just.bot.telegram;
 
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -40,6 +41,19 @@ public class BotUtil {
      */
     public static boolean updateTextEquals(Update update, String str) {
         return update.getMessage().hasText() && update.getMessage().getText().equals(str);
+    }
+
+    /**
+     * Метод для получения ip из команды.
+     * @param text текст команды.
+     * @return ip или null, если распознать ip не удалось
+     */
+    public static String getIpFromCommand(String text) {
+        String[] splitedText = text.split(" ");
+        if (splitedText.length != 2 || !InetAddressValidator.getInstance().isValid(splitedText[1])) {
+            return null;
+        }
+        return splitedText[1];
     }
 
 }

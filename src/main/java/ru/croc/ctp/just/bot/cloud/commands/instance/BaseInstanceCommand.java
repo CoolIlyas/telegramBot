@@ -1,7 +1,6 @@
 package ru.croc.ctp.just.bot.cloud.commands.instance;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.validator.routines.InetAddressValidator;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.croc.ctp.just.bot.cloud.service.CloudService;
 import ru.croc.ctp.just.bot.cloud.service.InstanceIpToIdService;
@@ -10,6 +9,7 @@ import ru.croc.ctp.just.bot.telegram.Command;
 
 import java.util.List;
 
+import static ru.croc.ctp.just.bot.telegram.BotUtil.getIpFromCommand;
 import static ru.croc.ctp.just.bot.telegram.BotUtil.sendMessage;
 
 /**
@@ -28,12 +28,11 @@ public abstract class BaseInstanceCommand implements Command {
 
     @Override
     public List<Object> handle(Update update, ChatEntity chat) {
-        String text = update.getMessage().getText();
-        String[] splitedText = text.split(" ");
-        if (splitedText.length != 2 || !InetAddressValidator.getInstance().isValid(splitedText[1])) {
+        String ip = getIpFromCommand(update.getMessage().getText());
+        if (ip == null) {
             return sendMessage("Не удалось распознать ip", chat);
         }
-        String id = instanceIpToIdService.getId(splitedText[1]);
+        String id = instanceIpToIdService.getId(ip);
         if (id == null) {
             return sendMessage("Экземпляр с данным ip не найден", chat);
         }

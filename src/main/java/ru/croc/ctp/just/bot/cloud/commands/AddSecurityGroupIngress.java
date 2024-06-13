@@ -8,7 +8,6 @@ import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.ec2.model.transform.DescribeSecurityGroupsResultStaxUnmarshaller;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.validator.routines.InetAddressValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -24,6 +23,7 @@ import java.util.Optional;
 import static ru.croc.ctp.just.bot.cloud.service.CloudService.AUTHORIZE_SECURITY_GROUP_INGRESS;
 import static ru.croc.ctp.just.bot.cloud.service.CloudService.DESCRIBE_SECURITY_GROUP;
 import static ru.croc.ctp.just.bot.cloud.service.CloudService.REVOKE_SECURITY_GROUP_INGRESS;
+import static ru.croc.ctp.just.bot.telegram.BotUtil.getIpFromCommand;
 import static ru.croc.ctp.just.bot.telegram.BotUtil.sendMessage;
 import static ru.croc.ctp.just.bot.telegram.BotUtil.updateTextStartsWith;
 
@@ -61,18 +61,19 @@ public class AddSecurityGroupIngress implements Command {
     @Override
     public List<Object> handle(Update update, ChatEntity chat) {
         // Распознаем ip
-        String text = update.getMessage().getText();
-        String[] splitedText = text.split(" ");
-        if (splitedText.length != 2 || !InetAddressValidator.getInstance().isValid(splitedText[1])) {
+        String ip = getIpFromCommand(update.getMessage().getText());
+        if (ip == null) {
             return sendMessage("Не удалось распознать ip", chat);
         }
-        String ip = splitedText[1];
         //Получаем все правила
         DescribeSecurityGroupsResult result;
         try {
-            result = cloudService.sendRequest(DESCRIBE_SECURITY_GROUP,
-                    HttpMethodName.GET, Map.of("GroupId.1", securityGroupId),
-                    new StaxResponseHandler<>(new DescribeSecurityGroupsResultStaxUnmarshaller())).getResult();
+            result = cloudService.sendRequest(
+                    DESCRIBE_SECURITY_GROUP,
+                    HttpMethodName.GET,
+                    Map.of("GroupId.1", securityGroupId),
+                    new StaxResponseHandler<>(new DescribeSecurityGroupsResultStaxUnmarshaller()))
+                    .getResult();
         } catch (Exception e) {
             return sendMessage("Произошла ошибка при отправке запроса", chat);
         }
@@ -91,7 +92,9 @@ public class AddSecurityGroupIngress implements Command {
         if (oldIpPermission.isPresent()) {
             try {
                 String oldId = oldIpPermission.get().getIpv4Ranges().get(0).getCidrIp();
-                cloudService.sendRequest(REVOKE_SECURITY_GROUP_INGRESS, HttpMethodName.GET,
+                cloudService.sendRequest(
+                        REVOKE_SECURITY_GROUP_INGRESS,
+                        HttpMethodName.GET,
                         Map.of(
                                 "GroupId", securityGroupId,
                                 "IpPermissions.0.IpProtocol", "-1",
@@ -99,7 +102,8 @@ public class AddSecurityGroupIngress implements Command {
                                 "IpPermissions.0.ToPort", "-1",
                                 "IpPermissions.0.IpRanges.1.CidrIp", oldId,
                                 "IpPermissions.0.IpRanges.1.Description", USERNAME_PREFIX + userName
-                        ), null);
+                        ),
+                        null);
             } catch (Exception e) {
                 return sendMessage("Произошла ошибка при удалении старого правила", chat);
             }
@@ -107,7 +111,9 @@ public class AddSecurityGroupIngress implements Command {
 
         //Добавляем новое правило
         try {
-            cloudService.sendRequest(AUTHORIZE_SECURITY_GROUP_INGRESS, HttpMethodName.GET,
+            cloudService.sendRequest(
+                    AUTHORIZE_SECURITY_GROUP_INGRESS,
+                    HttpMethodName.GET,
                     Map.of(
                             "GroupId", securityGroupId,
                             "IpPermissions.0.IpProtocol", "-1",
@@ -115,7 +121,8 @@ public class AddSecurityGroupIngress implements Command {
                             "IpPermissions.0.ToPort", "-1",
                             "IpPermissions.0.IpRanges.1.CidrIp", ip + IP_MASK_POSTFIX,
                             "IpPermissions.0.IpRanges.1.Description", USERNAME_PREFIX + userName
-                    ), null);
+                    ),
+                    null);
         } catch (AmazonServiceException e) {
             String errorCode = e.getErrorCode();
             String responseText = switch (errorCode) {
